@@ -14,7 +14,7 @@
 
 ## 2주차
 
-- Image, Checkbox, TextField, Spacer, Divider
+- Image, Icon, Checkbox, TextField, Spacer, Divider
 - Slot Api, Scaffold
 
 ## 3주차
