@@ -2,6 +2,7 @@
 
 - xml에서의 `ImageView`가 → Compose에서는 `Image`라고 생각하면 된다.   
 - `Image` 속성은 크게 3개로 나뉜다.   
+
    ![Untitled](https://github.com/YAPP-Github/23rd-Study-jetpack-compose/assets/70886911/b4e3c103-e18e-4672-8d9c-87536640d6c2)
 
     
