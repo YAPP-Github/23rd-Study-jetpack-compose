@@ -157,7 +157,7 @@ fun CheckBoxEx() {
 ```kotlin
 @Composable
 fun CheckBoxEx() {
-		Row(verticalAlignment = Alignment.CenterVertically) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
         val (checked, setChecked) = remember{ mutableStateOf(false) }
         Checkbox(
             checked = checked,
