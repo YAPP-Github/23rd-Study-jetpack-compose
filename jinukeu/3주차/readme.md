@@ -97,7 +97,7 @@ Content 주위에 Modifier를 사용하여 padding을 추가하는 경우 **첫 
 List에 동일한 Padding을 유지하면서 Content가 잘리지 않게 하는 해결법으로는 List의 contentPadding을 사용하면 된다.   
 
 ## Content Space
-Content 사이의 간격을 추가하려면 spaceBy()를 사용하면 된다.
+Content 사이의 간격을 추가하려면 spaceBy()를 사용하면 된다.    
 ![img_3.png](img_3.png)    
 
 ```kotlin
@@ -293,7 +293,13 @@ LazyLayout은 첫 번째 측정에서 눈이 보이는 만큼만 item을 Composi
 - 자식 아이템의 크기는 0px
 - 자식 아이템의 개수는 20개
 
-인 경우 첫 번째 측정에서 20개의 자식 아이템이 배치됩니다.
+인 경우 첫 번째 측정에서 20개의 자식 아이템이 배치됩니다.   
+
+문제 발생 시나리오
+1. 자식 아이템의 크기를 0px로 설정합니다.
+2. LazyLayout이 첫 번째 측정을 마칩니다. (모든 자식 아이템이 배치됨)
+3. 자식 아이템의 크기를 50px로 변경합니다. (예를 들어 이미지가 로드된 경우)
+4. LazyLayout은 눈에 보이는 아이템만 살리고 나머지는 죽입니다. (어차피 죽일거면 처음부터 살릴 아이템만 배치하는게 이득)
 
 ### 동일한 방향으로 스크롤 가능한 컴포넌트 중첩 불가   
 ![img_5.png](img_5.png)    
@@ -344,6 +350,144 @@ https://pluu.github.io/blog/android/io22/2022/06/19/io22-Lazy-layouts-in-Compose
 https://developer.android.com/jetpack/compose/lists?hl=ko   
 https://tourspace.tistory.com/535   
 
-# Dialog
+# Dialog   
+## AlertDialog
+AlertDialog를 사용해서 어느정도 디자인이 구현된 Dialog를 사용할 수 있다.   
+```kotlin
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AlertDialogExample(
+    onDismissRequest: () -> Unit,
+    onConfirmation: () -> Unit,
+    dialogTitle: String,
+    dialogText: String,
+    icon: ImageVector,
+) {
+    AlertDialog(
+        icon = {
+            Icon(icon, contentDescription = "Example Icon")
+        },
+        title = {
+            Text(text = dialogTitle)
+        },
+        text = {
+            Text(text = dialogText)
+        },
+        onDismissRequest = {
+            onDismissRequest()
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    onConfirmation()
+                }
+            ) {
+                Text("Confirm")
+            }
+        },
+        dismissButton = {
+            TextButton(
+                onClick = {
+                    onDismissRequest()
+                }
+            ) {
+                Text("Dismiss")
+            }
+        }
+    )
+}
+```   
+![img_13.png](img_13.png)   
 
-# SnackBar
+## Dialog
+Dialog를 사용하면 더 자유로운 Dialog를 만들 수 있다.   
+
+예시는 다음과 같다.   
+```kotlin
+@Composable
+fun MinimalDialog(onDismissRequest: () -> Unit) {
+    Dialog(onDismissRequest = { onDismissRequest() }) {
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(200.dp)
+                .padding(16.dp),
+            shape = RoundedCornerShape(16.dp),
+        ) {
+            Text(
+                text = "This is a minimal dialog",
+                modifier = Modifier
+                    .fillMaxSize()
+                    .wrapContentSize(Alignment.Center),
+                textAlign = TextAlign.Center,
+            )
+        }
+    }
+}
+```   
+
+![img_14.png](img_14.png)   
+
+### 미세 팁
+```kotlin
+Dialog(
+        onDismissRequest = onDismissRequest,
+        properties = DialogProperties(usePlatformDefaultWidth = false)
+) 
+```   
+
+Dialog를 사용하면 기본 패딩이 적용되어있다. 기본 패딩을 제거하려면 usePlatformDefaultWidth = false로 하면 된다.
+
+# SnackBar   
+Snackbar를 사용하려면 3가지 컴포넌트에 대해 알아야 한다.
+```kotlin
+@Composable
+fun Snackbar(…) {…}
+
+@Composable
+fun SnackbarHost(
+    hostState: SnackbarHostState,
+    modifier: Modifier = Modifier,
+    snackbar: @Composable (SnackbarData) -> Unit = { Snackbar(it) }
+) {…}
+
+
+@Stable
+class SnackbarHostState {
+suspend fun showSnackbar(
+    message: String,
+    actionLabel: String? = null,
+    duration: SnackbarDuration = SnackbarDuration.Short
+): SnackbarResult {…}
+}
+```   
+
+- Snackbar : 실제로 눈에 보이는 컴포저블
+- SnackbarHost : Snackbar와 애니메이션을 보여주고 숨기는 역할
+- SnackbarHostState : SnackbarHost 내부에 표시되는 Snackbar와 나중에 표시될 Snackbar의 queue를 제어합니다. 한번에 하나의 Snackbar만 보이게 합니다. showSnackbar()라는 suspend 함수를 가지고 있습니다.   
+
+사용 예시 코드   
+```kotlin
+@Composable
+fun SnackbarDemo() {
+    val scaffoldState: ScaffoldState = rememberScaffoldState()
+    val coroutineScope: CoroutineScope = rememberCoroutineScope()
+
+    Scaffold(scaffoldState = scaffoldState) {
+        Button(onClick = {
+            coroutineScope.launch {
+                scaffoldState.snackbarHostState.showSnackbar(
+                        message = "This is your message",
+                        actionLabel = "Do something"
+                )
+            }
+        }) {
+            Text(text = "Click me!")
+        }
+    }
+}
+```   
+
+새로운 코루틴 스코프를 사용해서 현재 스레드를 블락킹하지 않도록 해야합니다.
+
+https://medium.com/@jurajkunier/how-to-show-snackbar-in-jetpack-compose-3f2d81891f87
