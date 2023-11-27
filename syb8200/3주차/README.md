@@ -2,7 +2,7 @@
 
 # 1. LazyColumn
 
-![Untitled.png](..%2F..%2F..%2F..%2F..%2FDownloads%2Fa49fc2a6-7a92-4a21-8441-864bfccd00a6_Export-d66cf60e-b0c8-41cf-9b8d-1400c04f6c68%2F%5B3%EC%A3%BC%EC%B0%A8%5D%20LazyColumn%2C%20LazyRow%2C%20LazyGrid%2C%20Dialog%2C%20Sna%206271ae49aa644dd78088303d593619a1%2FUntitled.png)
+![image1.png](image1.png)
 
 - 스크롤할 수 있는 항목의 세로 목록을 표시(세로 배치)하는 컴포저블이다.
 - 안드로이드 RecyclerView와 유사하다. (vertical)
@@ -10,15 +10,12 @@
 
 > ❓ **Column** vs **Lazy Column** 차이점
 > <br/>
-> - Column
-   : 표시할 항목이 적은 경우 사용
-   : 사전에 정의(고정)된 개수의 컴포저블만 보유할 수 있음
-<br/>
-
-> - Lazy Column
-   : 많은 항목들을 보여줘야 할 때 사용
-   : 추가 코드 없이 기본적으로 스크롤 제공
-   >
+> - Column <br/>
+   : 표시할 항목이 적은 경우 사용 <br/>
+   : 사전에 정의(고정)된 개수의 컴포저블만 보유할 수 있음 <br/>
+> - Lazy Column <br/>
+   : 많은 항목들을 보여줘야 할 때 사용 <br/>
+   : 추가 코드 없이 기본적으로 스크롤 제공 <br/>
 
 ### 1) Lazy Column 속성
 
@@ -156,7 +153,7 @@ val items = listOf(
 
 - 결과
 
-    ![Untitled.gif](..%2F..%2F..%2F..%2F..%2FDownloads%2Fa49fc2a6-7a92-4a21-8441-864bfccd00a6_Export-d66cf60e-b0c8-41cf-9b8d-1400c04f6c68%2F%5B3%EC%A3%BC%EC%B0%A8%5D%20LazyColumn%2C%20LazyRow%2C%20LazyGrid%2C%20Dialog%2C%20Sna%206271ae49aa644dd78088303d593619a1%2FUntitled.gif)
+    ![image2.gif](image2.gif)
 
 ---
 
@@ -208,7 +205,7 @@ val items = listOf(
                 }
                 ```
 
-              ![Untitled 1.png](..%2F..%2F..%2F..%2F..%2FDownloads%2Fa49fc2a6-7a92-4a21-8441-864bfccd00a6_Export-d66cf60e-b0c8-41cf-9b8d-1400c04f6c68%2F%5B3%EC%A3%BC%EC%B0%A8%5D%20LazyColumn%2C%20LazyRow%2C%20LazyGrid%2C%20Dialog%2C%20Sna%206271ae49aa644dd78088303d593619a1%2FUntitled%201.png)
+              ![image3.png](image3.png)
 
             - List를 넣는 경우
 
@@ -247,7 +244,7 @@ val items = listOf(
             }
             ```
 
-          ![Untitled 2.png](..%2F..%2F..%2F..%2F..%2FDownloads%2Fa49fc2a6-7a92-4a21-8441-864bfccd00a6_Export-d66cf60e-b0c8-41cf-9b8d-1400c04f6c68%2F%5B3%EC%A3%BC%EC%B0%A8%5D%20LazyColumn%2C%20LazyRow%2C%20LazyGrid%2C%20Dialog%2C%20Sna%206271ae49aa644dd78088303d593619a1%2FUntitled%202.png)
+          ![image4.png](image4.png)
 
 
 # 2. LazyRow
@@ -332,7 +329,7 @@ fun LazyRow(
 
     - 결과
 
-      ![Untitled 1.gif](..%2F..%2F..%2F..%2F..%2FDownloads%2Fa49fc2a6-7a92-4a21-8441-864bfccd00a6_Export-d66cf60e-b0c8-41cf-9b8d-1400c04f6c68%2F%5B3%EC%A3%BC%EC%B0%A8%5D%20LazyColumn%2C%20LazyRow%2C%20LazyGrid%2C%20Dialog%2C%20Sna%206271ae49aa644dd78088303d593619a1%2FUntitled%201.gif)
+      ![image5.gif](image5.gif)
 
 
 # 3. LazyGrid
@@ -463,7 +460,7 @@ fun LazyRow(
           }
           ```
         
-          ![Untitled 3.png](..%2F..%2F..%2F..%2F..%2FDownloads%2Fa49fc2a6-7a92-4a21-8441-864bfccd00a6_Export-d66cf60e-b0c8-41cf-9b8d-1400c04f6c68%2F%5B3%EC%A3%BC%EC%B0%A8%5D%20LazyColumn%2C%20LazyRow%2C%20LazyGrid%2C%20Dialog%2C%20Sna%206271ae49aa644dd78088303d593619a1%2FUntitled%203.png)
+          ![image6.png](image6.png)
 
     <br/>
 
@@ -603,7 +600,7 @@ fun DialogEx() {
 }
 ```
 
-![Untitled 2.gif](..%2F..%2F..%2F..%2F..%2FDownloads%2Fa49fc2a6-7a92-4a21-8441-864bfccd00a6_Export-d66cf60e-b0c8-41cf-9b8d-1400c04f6c68%2F%5B3%EC%A3%BC%EC%B0%A8%5D%20LazyColumn%2C%20LazyRow%2C%20LazyGrid%2C%20Dialog%2C%20Sna%206271ae49aa644dd78088303d593619a1%2FUntitled%202.gif)
+![image7.gif](image7.gif)
 
 ```kotlin
 // buttons를 사용해서 더하기, 취소 버튼 순서 바꿀 수 있음
@@ -625,10 +622,10 @@ buttons = {
             Text(text = "취소")
         }
     }
-},
+}
 ```
 
-![Untitled 4.png](..%2F..%2F..%2F..%2F..%2FDownloads%2Fa49fc2a6-7a92-4a21-8441-864bfccd00a6_Export-d66cf60e-b0c8-41cf-9b8d-1400c04f6c68%2F%5B3%EC%A3%BC%EC%B0%A8%5D%20LazyColumn%2C%20LazyRow%2C%20LazyGrid%2C%20Dialog%2C%20Sna%206271ae49aa644dd78088303d593619a1%2FUntitled%204.png)
+![image8.png](image8.png)
 
 ### 3) Dialog 속성
 
@@ -661,7 +658,7 @@ fun Dialog(
         - `securePolicy` : SecureFlagPolicy.SecureOn을 대입하면 화면 캡쳐 기능이 동작하지 않는다.
 
 
-### 2) Dialog 사용해보기
+### 4) Dialog 사용해보기
 
 ```kotlin
 @Composable
@@ -716,7 +713,7 @@ fun CustomDialog() {
 }
 ```
 
-![Untitled 3.gif](..%2F..%2F..%2F..%2F..%2FDownloads%2Fa49fc2a6-7a92-4a21-8441-864bfccd00a6_Export-d66cf60e-b0c8-41cf-9b8d-1400c04f6c68%2F%5B3%EC%A3%BC%EC%B0%A8%5D%20LazyColumn%2C%20LazyRow%2C%20LazyGrid%2C%20Dialog%2C%20Sna%206271ae49aa644dd78088303d593619a1%2FUntitled%203.gif)
+![image9.gif](image9.gif)
 
 # 5. Snackbar
 
@@ -749,7 +746,6 @@ fun Snackbar(
 cf.) 공식문서에서도 Scaffold를 사용하고 있다.
 [https://developer.android.com/jetpack/compose/components/snackbar?hl=ko](https://developer.android.com/jetpack/compose/components/snackbar?hl=ko)
 <br/>
-<br/>
 
 cf.) SnackbarHost
 ```kotlin
@@ -763,7 +759,6 @@ fun SnackbarHost(
 
 - SnackbarHost의 상태에 따라 실제로 화면에 Snackbar를 표시하는 역할을 합니다.
 - Material 사양 및 호스트 상태에 따라 항목을 적절하게 표시, 숨기기 및 해제하기 위해 Scaffold에서 사용되는 스낵바용 호스트이다.
-<br/>
 <br/>
 
 cf.) SnackbarHostState
@@ -860,4 +855,4 @@ fun SnackbarEx() {
 
 - 결과
 
-  ![Untitled 4.gif](..%2F..%2F..%2F..%2F..%2FDownloads%2Fa49fc2a6-7a92-4a21-8441-864bfccd00a6_Export-d66cf60e-b0c8-41cf-9b8d-1400c04f6c68%2F%5B3%EC%A3%BC%EC%B0%A8%5D%20LazyColumn%2C%20LazyRow%2C%20LazyGrid%2C%20Dialog%2C%20Sna%206271ae49aa644dd78088303d593619a1%2FUntitled%204.gif)
+  ![image10.gif](image10.gif)
