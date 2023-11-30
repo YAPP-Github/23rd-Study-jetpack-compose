@@ -178,4 +178,240 @@ Recomposition이 취소되면 Compose는 Recomposition에서 UI 트리를 삭제
 구성 가능한 함수에 데이터가 필요하다면 데이터의 매개변수를 정의해야 합니다. 그런 다음, 비용이 많이 드는 작업을 구성 외부의 다른 스레드로 이동하고 mutableStateOf 또는 LiveData를 사용하여 Compose에 데이터를 전달할 수 있습니다.   
 
 ## 상태 관리
+앱의 상태는 시간이 지남에 따라 변할 수 있는 값이다.   
+- 네트워크 연결을 설정할 수 없을 때 표시되는 스낵바
+- 블로그 게시물 및 관련 댓글
+- 사용자가 클릭하면 버튼에서 재생되는 물결 애니메이션
+- 사용자가 이미지 위에 그릴 수 있는 스티커   
 
+### 상태 및 구성
+Compose를 업데이트하는 유일한 방법은 새 인수로 동일한 컴포저블을 호출하는 것이다.   
+```kotlin
+@Composable
+fun HelloContent() {
+   Column(modifier = Modifier.padding(16.dp)) {
+       Text(
+           text = "Hello!",
+           modifier = Modifier.padding(bottom = 8.dp),
+           style = MaterialTheme.typography.h5
+       )
+       OutlinedTextField(
+           value = "",
+           onValueChange = { },
+           label = { Text("Name") }
+       )
+   }
+}
+```   
+
+위 코드는 TextField가 자체적으로 업데이트 되지 않으므로 실행해도 아무 일도 일어나지 않는다.   
+
+### 컴포저블의 상태
+https://blog.onebone.me/post/jetpack-compose-remember/   
+#### remember
+remember는 initial composition 때 저장한 값을 앞으로의 recomposition에서 사용할 수 있도록 해준다. 즉 recomposition을 할 때는 값을 새롭게 생성하지 않고 기존에 저장되어 있던 데이터를 반환한다는 의미이다.   
+
+remember는 다시 하고 싶지 않은 비싼 작업을 수행해야 할 때 혹은 recomposition이 되어도 데이터를 보존해야할 때 사용하는 것이 좋다.   
+
+만약 value 값이 변했을 때 remember에 넣었던 값을 바꾸고 싶다면 remember(key: Any?, calculation: () -> T) 함수를 사용하면 된다.   
+
+#### MutableState<T>
+Compose에서는 `State<T>`의 값이 변경되면 recomposition이 일어난다.   
+
+`MutableState<T>`는 `State<T>`의 값을 직접 변경할 수 있게 해준다. 즉 `MutableState<T>`를 변경하면 recomposition이 일어난다.   
+
+```kotlin
+@Composable
+fun YourComposable() {
+    Column {
+        var clicks by remember { mutableStateOf(0) }
+
+        Button(
+            onClick = { ++clicks }
+        ) {
+            Text("Click here!")
+        }
+
+        Text(text = "Clicked $clicks times")
+    }
+}
+
+```   
+
+`MutableState<T>`를 만드는 방법은 세 가지가 있다.   
+- val mutableState = remember { mutableStateOf(default) }
+- var value by remember { mutableStateOf(default) }
+- val (value, setValue) = remember { mutableStateOf(default) }
+
+```kotlin
+var textState by remember {
+        mutableStateOf("")
+    }
+```
+
+`by` 키워드를 사용하게 되면 `mutableStateOf("")`의 `getValue`와 `setValue`의 권한이 textState로 넘어가게 된다. 따라서 textState의 값을 가져오려고 하면 `mutableStateOf("")`의 `value` 값을 가져오고, 저장하려고 하면 `mutableStateOf("")`의 `value` 값을 저장한다.
+
+https://pluu.gitbooks.io/kotlin/content/d074-b798-c2a4-c640-c624-be0c-c81d-d2b8/delegated-properties.html
+
+```kotlin
+@Stable
+interface MutableState<T> : State<T> {
+    override var value: T
+    operator fun component1(): T
+    operator fun component2(): (T) -> Unit
+}
+```
+
+```kotlin
+@Stable
+interface State<out T> {
+    val value: T
+}
+```
+
+```kotlin
+@Suppress("NOTHING_TO_INLINE")
+inline operator fun <T> State<T>.getValue(thisObj: Any?, property: KProperty<*>): T = value
+```
+
+```kotlin
+@Suppress("NOTHING_TO_INLINE")
+inline operator fun <T> MutableState<T>.setValue(thisObj: Any?, property: KProperty<*>, value: T) {
+    this.value = value
+}
+```
+
+따라서 mutableState를 by 하게 되면 getValue와 setValue가 위임되게 된다.
+getValue와 setValue는 extensions으로도 만들 수 있다. (어떤 object 던지 delegate 로 확장시킬 수 있다.)
+
+### 지원되는 기타 상태 유형
+Compose에서는 Android 앱에 사용되는 observable한 유형에서 `State<T>`를 만들 수 있는 함수가 내장되어 있다.   
+
+- Flow : collectAsStateWithLifecycle()   
+collectAsStateWithLifecycle()은 수명 주기를 인식하는 방식으로 Flow의 값을 수집하므로 불필요한 앱 리소스를 절약할 수 있다.   
+- Flow : collectAsState()   
+collectAsState도 Flow에서 값을 수집하여 Compose State로 변환한다. 플랫폼 제약이 없는 코드에서는 Android 전용인 collectAsStateWithLifecycle 대신 collectAsState를 사용해라.   
+- LiveData: observeAsState()
+- RxJava3: subscribeAsState()   
+
+### Stateful과 Stateless   
+remember는 컴포저블을 stateful로 만듭니다. 호출자가 상태를 제어할 필요가 없고 상태를 직접 관리하지 않아도 상태를 사용할 수 있는 경우에 유용합니다. 하지만 stateful하게 되면 재사용 가능성이 적어지고 테스트하기가 더 어려워집니다.   
+
+stateless는 상태를 갖지 않는 컴포저블입니다. 상태 호이스팅을 사용해서 stateless로 만들 수 있습니다.   
+
+재사용 가능한 컴포저블을 개발할 때는 **동일한 컴포저블의 stateful 버전과 stateless 저번을 모두 노출해야 하는 경우가 있습니다.**   
+
+### 상태 호이스팅   
+> hoist : 소형의 감아올리는 장치   
+![image](https://user-images.githubusercontent.com/81678959/225889282-196c70a2-f97d-455f-8224-bfb4dfb2ceb8.png)   
+ 
+상태 호이스팅이란, 상태를 컴포저블을 호출하는 함수로 옮기는 패턴입니다.   
+
+상태 호이스팅을 하는 일반적인 패턴은 상태 변수를 다음 두 개의 매개변수로 바꾸는 것입니다.   
+- `value: T` : 표시할 현재 값
+- `onValueChange: (T) -> Unit` : `T`가 제안된 새 값인 경우 값을 변경하도록 요청하는 이벤트   
+
+상태 호이스팅에는 다음과 같은 특징이 있다.
+- 단일 정보 소스: 상태를 복제하는 대신 옮겼기 때문에 정보 소스가 하나만 있습니다. 버그 방지에 도움이 됩니다.
+- 캡슐화됨: 스테이트풀(Stateful) 컴포저블만 상태를 수정할 수 있습니다. 철저히 내부적 속성입니다.
+- 공유 가능함: 호이스팅한 상태를 여러 컴포저블과 공유할 수 있습니다. 다른 컴포저블에서 name을 읽으려는 경우 호이스팅을 통해 그렇게 할 수 있습니다.
+- 가로채기 가능함: 스테이트리스(Stateless) 컴포저블의 호출자는 상태를 변경하기 전에 이벤트를 무시할지 수정할지 결정할 수 있습니다.
+- 분리됨: 스테이트리스(Stateless) ExpandingCard의 상태는 어디에나 저장할 수 있습니다. 예를 들어 이제는 name을 ViewModel로 옮길 수 있습니다.   
+
+```kotlin
+@Composable
+fun HelloScreen() {
+    var name by rememberSaveable { mutableStateOf("") }
+
+    HelloContent(name = name, onNameChange = { name = it })
+}
+
+@Composable
+fun HelloContent(name: String, onNameChange: (String) -> Unit) {
+    Column(modifier = Modifier.padding(16.dp)) {
+        Text(
+            text = "Hello, $name",
+            modifier = Modifier.padding(bottom = 8.dp),
+            style = MaterialTheme.typography.h5
+        )
+        OutlinedTextField(
+            value = name,
+            onValueChange = onNameChange,
+            label = { Text("Name") }
+        )
+    }
+}
+```   
+
+HelloContent에서 상태를 끌어올리면 더 쉽게 컴포저블을 추론하고 여러 상황에서 재사용하며 테스트할 수 있다. HelloScreen을 수정하거나 교체해도 HelloContent에는 영향이 가질 않는다.   
+
+![img_1.png](img_1.png)   
+
+상태가 내려가고 이벤트가 올라가는 패턴을 *단방향 데이터 흐름(unidirectional data flow - UDF)*라 합니다.   
+
+### Compose에서 상태 복원   
+rememberSaveable을 사용하여 Activity 또는 Process가 재생성되어도 UI 상태를 복원할 수 있다.   
+
+[공식 문서](https://developer.android.com/reference/kotlin/androidx/compose/runtime/saveable/package-summary#rememberSaveable(kotlin.Array,androidx.compose.runtime.saveable.Saver,kotlin.String,kotlin.Function0))에 따르면 rememberSaveable은 saved instance state mechanism를 따른다고 한다.   
+
+ViewModel과 Saved instance state의 차이점은 아래와 같다.   
+![img_2.png](img_2.png)   
+
+또는 Bundle에 저장하는 방법이 있습니다.   
+
+객체는 Parcelize로 만들어 저장할 수 있습니다.
+```kotlin
+@Parcelize
+data class City(val name: String, val country: String) : Parcelable
+
+@Composable
+fun CityScreen() {
+    var selectedCity = rememberSaveable {
+        mutableStateOf(City("Madrid", "Spain"))
+    }
+}
+```   
+
+MapSaver로도 가능합니다.   
+```kotlin
+data class City(val name: String, val country: String)
+
+val CitySaver = run {
+    val nameKey = "Name"
+    val countryKey = "Country"
+    mapSaver(
+        save = { mapOf(nameKey to it.name, countryKey to it.country) },
+        restore = { City(it[nameKey] as String, it[countryKey] as String) }
+    )
+}
+
+@Composable
+fun CityScreen() {
+    var selectedCity = rememberSaveable(stateSaver = CitySaver) {
+        mutableStateOf(City("Madrid", "Spain"))
+    }
+}
+```   
+
+ListSaver도 가능하다.   
+```kotlin
+data class City(val name: String, val country: String)
+
+val CitySaver = listSaver<City, Any>(
+    save = { listOf(it.name, it.country) },
+    restore = { City(it[0] as String, it[1] as String) }
+)
+
+@Composable
+fun CityScreen() {
+    var selectedCity = rememberSaveable(stateSaver = CitySaver) {
+        mutableStateOf(City("Madrid", "Spain"))
+    }
+}
+```   
+
+### Compose의 상태 홀더   
+추적할 상태의 양이 늘어나거나 Composable 함수에서 실행할 로직이 발생하는 경우 로직과 상태 책임을 다른 클래스, 즉 상태 홀더에 위임하는 것이 좋습니다.   
+
+#### 리컴포지션 외에 키와 함께 상태 저장
+rememberSaveable는 remember의 key와 동일한 input 매개변수를 가지고 있습니다. input 이 변경되면 calculation 람다 블록이 재실행됩니다.
