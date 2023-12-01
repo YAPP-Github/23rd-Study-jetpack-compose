@@ -8,14 +8,7 @@ fun Homework1() {
             bottomBar = {
                 NavigationBar(
                         modifier = Modifier
-                                .clip(RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp))
-                                .customShadow(
-                                        color = Color.Gray,
-                                        blurRadius = 100.dp,
-                                        offsetY = 10.dp,
-                                        offsetX = 0.dp,
-                                        spread = 1.dp,
-                                ),
+                                .clip(RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)),
                         containerColor = Color.White,
                 ) {
                     repeat(4) {
