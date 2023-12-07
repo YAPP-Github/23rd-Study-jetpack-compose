@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -83,7 +82,7 @@ class Homework1 : ComponentActivity() {
 @Composable
 fun Homework1Screen() {
     val bottomItems = listOf("홈", "혜택", "송금", "전체")
-    var bottomNavItem by rememberSaveable { mutableStateOf(0) }
+    var selectedBottomNavItem by rememberSaveable { mutableStateOf(0) }
 
     Scaffold(
         // 상단바
@@ -125,25 +124,14 @@ fun Homework1Screen() {
                         },
                         icon = {
                             when (item) {
-                                "홈" -> {
-                                    Icon(imageVector = Icons.Filled.Home, contentDescription = null)
-                                }
-
-                                "혜택" -> {
-                                    Icon(imageVector = Icons.Filled.Star, contentDescription = null)
-                                }
-
-                                "송금" -> {
-                                    Icon(imageVector = Icons.Filled.Send, contentDescription = null)
-                                }
-
-                                "전체" -> {
-                                    Icon(imageVector = Icons.Filled.Menu, contentDescription = null)
-                                }
+                                "홈" -> Icon(imageVector = Icons.Filled.Home, contentDescription = null)
+                                "혜택" -> Icon(imageVector = Icons.Filled.Star, contentDescription = null)
+                                "송금" -> Icon(imageVector = Icons.Filled.Send, contentDescription = null)
+                                "전체" -> Icon(imageVector = Icons.Filled.Menu, contentDescription = null)
                             }
                         },
-                        selected = index == bottomNavItem,
-                        onClick = { bottomNavItem = index },
+                        selected = index == selectedBottomNavItem,
+                        onClick = { selectedBottomNavItem = index },
                     )
                 }
             }
@@ -168,7 +156,7 @@ fun ContentSection() {
         Spacer(modifier = Modifier.size(36.dp))
 
         Row(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 0.dp),
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
             Column {
@@ -191,7 +179,7 @@ fun ContentSection() {
                     contentColor = Color.White,
                 ),
                 shape = RoundedCornerShape(8.dp),
-                modifier = Modifier.padding(horizontal = 0.dp, vertical = 20.dp),
+                modifier = Modifier.padding(vertical = 20.dp),
                 contentPadding = PaddingValues(12.dp, 0.dp),
                 onClick = {},
             ) {
@@ -203,10 +191,8 @@ fun ContentSection() {
         }
 
         Divider(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(1.dp)
-                .padding(start = 20.dp, top = 0.dp, end = 0.dp, bottom = 0.dp),
+            modifier = Modifier.padding(start = 20.dp),
+            thickness = 1.dp,
         )
 
         Spacer(modifier = Modifier.size(20.dp))
@@ -256,14 +242,14 @@ fun CardSection(
         colors = CardDefaults.cardColors(Color.White),
     ) {
         Column(
-            modifier = Modifier.padding(horizontal = 0.dp, vertical = 24.dp),
+            modifier = Modifier.padding(vertical = 24.dp),
         ) {
             Text(
                 text = title,
                 color = Color.Black,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(horizontal = 20.dp, vertical = 0.dp),
+                modifier = Modifier.padding(horizontal = 20.dp),
             )
             content()
         }
@@ -280,7 +266,7 @@ fun ItemSection(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 20.dp, vertical = 0.dp),
+            .padding(horizontal = 20.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween,
     ) {
@@ -300,27 +286,21 @@ fun ItemSection(
         Column(
             modifier = Modifier
                 .weight(1f)
-                .padding(horizontal = 24.dp, vertical = 0.dp),
+                .padding(horizontal = 24.dp),
         ) {
-            if (subTitle == null) {
-                Text(
-                    text = title,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
-                )
-            } else {
+            if (subTitle != null) {
                 Text(
                     text = subTitle,
                     fontSize = 12.sp,
                     color = Color.Gray,
                 )
-                Text(
-                    text = title,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.Black,
-                )
             }
+            Text(
+                text = title,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.Black,
+            )
         }
 
         Icon(
