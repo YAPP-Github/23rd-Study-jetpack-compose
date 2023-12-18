@@ -224,6 +224,26 @@ fun rememberAnalytics(user: User): FirebaseAnalytics {
 ### produceState: 비Compose State -> Compose State
 - Flow, LiveData, RxJava 구독 기반 상태를 컴포지션으로 변환하는 코루틴
 
+```kotlin
+data class DetailsUiState(
+  val cityDetails: ExploreModel? = null,
+  val isLoading: Boolean = false,
+  val throwError: Boolean = false
+)
+
+val uiState by produceState(initialValue = DetailsUiState(isLoading = true)) {
+  // In a coroutine, this can call suspend functions or move
+  // the computation to different Dispatchers
+  val cityDetailsResult = viewModel.cityDetails
+  value = if (cityDetailsResult is Result.Success<ExploreModel>) {
+    DetailsUiState(cityDetailsResult.data)
+  } else {
+    DetailsUiState(throwError = true)
+  }
+}
+```
+- `cityDetails`의 값에 따라 `uiState` 변경
+
 ### derivedStateOf: 하나 이상의 State -> 다른 State
 - State에서 다른 State가 계산되거나 파생되는 경우에 사용
 
@@ -234,6 +254,22 @@ val highPriorityTasks by remember(highPriorityKeywords) {
   derivedStateOf { todoTasks.filter { it.containsWord(highPriorityKeywords) } }
 }
 ```
+
+만약 리스트의 첫 요소가 보이지 않게 되면 top 버튼을 띄우고 싶다면?
+
+`val showButton = listState.firstVisibleItemIndex > 0`
+- `firstVisibleItemIndex`은 자주 변경됨 ➡️ 자주 Recomposition
+- 사실 첫 요소가 보이기만 하면 false, 다른 경우에는 true인데... 두번째 세번째 네번째 ... 가 첫 요소가 될때마다 Recompositon 되어버린다.
+
+```kotlin
+val showButton by remember {
+    derivedStateOf {
+        listState.firstVisibleItemIndex > 0
+    }
+}
+```
+- `derivedStateOf`를 이용하여 파상된 **상태**를 만든다
+- showButton이 true ↔️ false 상태가 변경될 때만 Recomposition이 발생
 
 ### snapshotFlow: State -> Flow
 - State를 Cold Flow로 변환
