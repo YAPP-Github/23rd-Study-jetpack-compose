@@ -1,4 +1,4 @@
-package kr.co.teamfresh.syb.composehomework2
+package com.example.composehomework2
 
 import androidx.annotation.DrawableRes
 

@@ -1,4 +1,4 @@
-package kr.co.teamfresh.syb.composehomework2
+package com.example.composehomework2
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -43,7 +43,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
-import kr.co.teamfresh.syb.composehomework2.ui.theme.ComposeHomework2Theme
+import com.example.composehomework2.ui.theme.ComposeHomework2Theme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
