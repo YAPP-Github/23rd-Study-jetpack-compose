@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
@@ -34,12 +33,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -79,17 +73,18 @@ enum class Homework2TabItem(val title: String) {
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun Homework2Screen(modifier: Modifier = Modifier) {
-    var selectedTabIndex by remember { mutableStateOf(0) }
     var pagerState = rememberPagerState()
     val scope = rememberCoroutineScope()
+    var selectedTabIndex = pagerState.currentPage
+
+    val tabs: Array<Homework2TabItem> = Homework2TabItem.values()
+//    val list: List<String> = Homework2TabItem.values().map { it.title }
 
     Scaffold(
         // 상단바
         topBar = {
             TopAppBar(
-                title = {
-                    Text(text = "")
-                },
+                title = {},
                 navigationIcon = {
                     IconButton(onClick = {}) {
                         Icon(
@@ -148,99 +143,61 @@ fun Homework2Screen(modifier: Modifier = Modifier) {
                 )
             }
             Spacer(modifier = modifier.size(24.dp))
-            // 탭 + 페이저
-            CustomScrollableTabRowWithHorizontalPager(
-                tabs = Homework2TabItem.values(),
-                selectedTabIndex = selectedTabIndex,
-                onTabClick = { index ->
-                    selectedTabIndex = index
-                    scope.launch {
-                        pagerState.animateScrollToPage(index)
-                    }
-                },
-                pagerState = pagerState,
-            )
 
-            // [참고] https://semicolonspace.com/jetpack-compose-tab-layout-material3/
-            LaunchedEffect(pagerState.currentPage, pagerState.isScrollInProgress) {
-                if (!pagerState.isScrollInProgress) {
-                    selectedTabIndex = pagerState.currentPage
+            // 탭
+            ScrollableTabRow(
+                selectedTabIndex = selectedTabIndex,
+                containerColor = Color.White,
+                contentColor = Color.DarkGray,
+                edgePadding = 0.dp,
+                indicator = { tabPositions ->
+                    TabRowDefaults.Indicator(
+                        modifier = modifier.tabIndicatorOffset(currentTabPosition = tabPositions[selectedTabIndex]),
+                        height = 4.dp,
+                        color = Color(0xFF00CEF4),
+                    )
+                },
+            ) {
+                tabs.forEachIndexed { index, tabItem ->
+                    Tab(
+                        selected = selectedTabIndex == index,
+                        onClick = {
+                            selectedTabIndex = index
+                            scope.launch {
+                                pagerState.animateScrollToPage(index)
+                            }
+                        },
+                        selectedContentColor = Color(0xFF00CEF4),
+                        unselectedContentColor = Color.DarkGray,
+                    ) {
+                        Text(
+                            text = tabItem.title,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 14.sp,
+                            modifier = modifier.padding(horizontal = 4.dp, vertical = 12.dp),
+                        )
+                    }
                 }
             }
-        }
-    }
-}
 
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-fun CustomScrollableTabRowWithHorizontalPager(
-    modifier: Modifier = Modifier,
-    tabs: Array<Homework2TabItem> = Homework2TabItem.values(),
-    selectedTabIndex: Int,
-    onTabClick: (Int) -> Unit,
-    pagerState: PagerState,
-) {
-    // 탭
-    CustomScrollableTabRow(
-        tabs = Homework2TabItem.values(),
-        selectedTabIndex = selectedTabIndex,
-        onTabClick = onTabClick,
-    )
-
-    // 페이저
-    HorizontalPager(
-        pageCount = tabs.size,
-        state = pagerState,
-    ) { index ->
-        Box(
-            modifier = modifier.fillMaxSize(),
-            contentAlignment = Alignment.TopStart,
-        ) {
-            when (Homework2TabItem.values()[index]) {
-                Homework2TabItem.All -> AllScreen(itemList)
-                Homework2TabItem.Folder -> FolderScreen(itemList)
-                Homework2TabItem.Product -> ProductScreen("Product")
-                Homework2TabItem.Picture -> PictureScreen("Picture")
-                Homework2TabItem.Housewarming -> HousewarmingScreen("Housewarming")
-                Homework2TabItem.Knowhow -> KnowhowScreen("Knowhow")
-            }
-        }
-    }
-}
-
-@Composable
-fun CustomScrollableTabRow(
-    modifier: Modifier = Modifier,
-    tabs: Array<Homework2TabItem> = Homework2TabItem.values(),
-    selectedTabIndex: Int,
-    onTabClick: (Int) -> Unit,
-) {
-    ScrollableTabRow(
-        selectedTabIndex = selectedTabIndex,
-        containerColor = Color.White,
-        contentColor = Color.DarkGray,
-        edgePadding = 0.dp,
-        indicator = { tabPositions ->
-            TabRowDefaults.Indicator(
-                modifier = modifier.tabIndicatorOffset(currentTabPosition = tabPositions[selectedTabIndex]),
-                height = 4.dp,
-                color = Color(0xFF00CEF4),
-            )
-        },
-    ) {
-        tabs.forEachIndexed { index, tabItem ->
-            Tab(
-                selected = selectedTabIndex == index,
-                onClick = { onTabClick(index) },
-                selectedContentColor = Color(0xFF00CEF4),
-                unselectedContentColor = Color.DarkGray,
-            ) {
-                Text(
-                    text = tabItem.title,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 14.sp,
-                    modifier = modifier.padding(horizontal = 4.dp, vertical = 12.dp),
-                )
+            // 페이저
+            HorizontalPager(
+                pageCount = tabs.size,
+                state = pagerState,
+            ) { index ->
+                Box(
+                    modifier = modifier.fillMaxSize(),
+                    contentAlignment = Alignment.TopStart,
+                ) {
+                    when (tabs[index]) {
+                        Homework2TabItem.All -> AllScreen(itemList)
+                        Homework2TabItem.Folder -> FolderScreen(itemList)
+                        Homework2TabItem.Product -> ProductScreen("Product")
+                        Homework2TabItem.Picture -> PictureScreen("Picture")
+                        Homework2TabItem.Housewarming -> HousewarmingScreen("Housewarming")
+                        Homework2TabItem.Knowhow -> KnowhowScreen("Knowhow")
+                    }
+                }
             }
         }
     }
