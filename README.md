@@ -53,6 +53,9 @@
 
 - CompositionLocal (https://developer.android.com/jetpack/compose/compositionlocal?hl=ko)
 - Theme
-- 컴포즈 안티 패턴
+- [컴포즈 안티 패턴 1-5](https://velog.io/@mraz3068/Jetpack-Compose-Top-20-mistakes-1-5)
+- [컴포즈 안티 패턴 6-10](https://velog.io/@mraz3068/Jetpack-Compose-Top-20-mistakes-6-10)
+- [컴포즈 안티 패턴 11-15](https://velog.io/@mraz3068/Jetpack-Compose-Top-20-mistakes-11-15)
+- [컴포즈 안태 패턴 16-20](https://velog.io/@mraz3068/Jetpack-Compose-Top-20-mistakes-16-20)
 - 과제 - Dialog + BottomSheet   
 ![img.png](img/homework4.png)

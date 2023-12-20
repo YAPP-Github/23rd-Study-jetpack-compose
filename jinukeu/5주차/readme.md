@@ -97,9 +97,10 @@ fun MoviesScreen(movies: List<Movie>) {
 
 stable type은 다음을 따라야한다.
 - 두 인스턴스의 `equals` 결과가 동일한 두 인스턴스의 경우 항상 동일하다.
-- type의 public property가 변경되면 컴포지션에 알림이 간다.
+- type의 public property가 변경되면 컴포지션에 알림이 간다. (1)
 - 모든 public property도 stable하다.
-`@Stable`을 사용하여 명시하지 않아도 Compose가 stable하다고 간주한다. 
+
+`@Stable`을 사용하여 명시하지 않아도 Compose가 stable하다고 간주한다.   
 또한 stable하다고 간주하는 일반 유형이 있다.   
 - 모든 원시 값 유형 : `Boolean`, `Int`, `Long` ...
 - 문자열
@@ -115,7 +116,7 @@ class Name(val value: String)
 예를 들어 위 코드에서 Name 클래스는 모든 필드가 불변하고 안정한 타입 이므로 안정적 상태로 간주된다. [참고한 링크](https://sungbin.land/a-deep-dive-into-jetpack-compose-stability-38b5b109da71)     
 
 
-type의 public property가 변경되면 컴포지션에 알림이 간다. -> Compose의 `MutableState`유형으로 생각하면 된다. `Mutablestate`의 경우 `State`의 `.value`값이 변경되면 Compose에 알림이 전송되므로 상태 객체는 전체적으로 안정적인 것으로 간주된다.   
+(1) type의 public property가 변경되면 컴포지션에 알림이 간다. -> Compose의 `MutableState`유형으로 생각하면 된다. `Mutablestate`의 경우 `State`의 `.value`값이 변경되면 Compose에 알림이 전송되므로 상태 객체는 전체적으로 안정적인 것으로 간주된다.   
 
 Compose는 증명할 수 있는 경우에만 유형을 stable한 것으로 간주한다. 예를 들어 interface, 구현을 변경할 수 없는데 변경할 수 있는 public property가 있는 유형은 stable 하지 않다.   
 
