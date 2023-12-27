@@ -18,12 +18,16 @@
 ### Composition
 - Composable 함수를 실행하고 UI 트리 구조 생성
 - 다음 단계에 필요한 정보를 담은 Layout Node로 구성
-  (사진)
+
+![스크린샷 2023-12-27 오후 1 44 16](https://github.com/YAPP-Github/23rd-Study-jetpack-compose/assets/69582122/982dffbe-f6bb-4d5c-9e9d-d166d7c0eea9)
+
 
 ### Layout
 - Composition 단계에서 생성된 UI 트리를 바탕으로 각 노드의 크기와 위치를 결정
 - 각 노드는 한 번만 방문
-  (사진)
+
+![스크린샷 2023-12-27 오후 1 45 37](https://github.com/YAPP-Github/23rd-Study-jetpack-compose/assets/69582122/ca05af46-d5d4-4787-8599-6c51e63075cc)
+
 - Layout Tree를 탐색하는 방법
 1. 하위 노드가 있으면 하위 노드를 측정
 2. 모든 하위 노드를 측정하면 자신의 크기를 결정
@@ -43,6 +47,8 @@
 ### Drawing
 - 노드를 화면에 그리는 단계
 - 트리가 위에서 아래로 다시 탐색됨
+
+![스크린샷 2023-12-27 오후 1 51 57](https://github.com/YAPP-Github/23rd-Study-jetpack-compose/assets/69582122/fae60980-32aa-49cc-aa89-13b43bc3769e)
 
 <img src = "https://developer.android.com/static/images/jetpack/compose/code-subsection.png"/>
 1. Row를 그림 (Background color 등..)
