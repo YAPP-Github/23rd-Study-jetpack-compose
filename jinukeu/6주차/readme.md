@@ -1,4 +1,4 @@
-# 5주차
+# 6주차
 - 단계 (https://developer.android.com/jetpack/compose/phases?hl=ko)
 - 성능 (https://developer.android.com/jetpack/compose/performance?hl=ko)
 
@@ -7,7 +7,7 @@
 
 ## 프레임의 3 페이즈
 컴포즈에서의 페이즈는 크게 3가지로 나눌 수 있다.
-1. **Composition** : 보여질 UI. 컴포즈는 composable 함수를 실행하고 ui 설명을 만듭니다.
+1. **Composition** : 보여질 UI. 컴포즈는 composable 함수를 실행하고 ui 설명을 만든다.
 2. **Layout** : UI를 배치할 위치. 이 페이즈는 2단계로 구성되어있다. 
 3. **Drawing** : 렌더링 방식. UI 요소가 캔버스에 그러진다.   
 
