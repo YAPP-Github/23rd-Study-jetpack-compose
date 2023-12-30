@@ -164,3 +164,136 @@ fun SomeComposable() {
     }
 }
 ```
+
+# Jetpack Compose에서 절대로 해서는 안되는 20가지 실수
+1. Composable 함수에서 Composable이 아닌 함수를 호출하는 것    
+리컴포지션이 일어날 때마다 함수가 호출된다.   
+2. MutableList를 State로 사용하는 것   
+Compose는 MutableList와 같은 mutable data type일 경우, 변화를 감지하지 못한다.   
+3. Remember를 이용하여 State를 만드는 것   
+-> 이건 실수라고 생각 안하긴해요 ...   
+4. LazyColumn 내에서 Key 를 사용하지 않는 것
+5. 외부 모듈로 부터 Unstable 한 class 를 사용하는 것   
+[compose-stable-marker](https://github.com/skydoves/compose-stable-marker)를 사용해 해결 가능.
+6. Flow를 collectAsState()를 통해서 소비하는 것   
+collectAsStateLifecycle() 함수를 사용하는게 좋다.
+7. GraphicsLayer 외부에서의 변환 애니메이션   
+변환 애니메이션(회전, 크기 변화, 이동)은 transform modifier, graphicsLayer modifier를 사용해서 구현할 수 있다. graphicsLayer modifier를 사용할 경우 Composable의 외관이 변하지 않는다면 recomposition이 발생하지 않기 때문에 transform modifier에 비해 성능 상 유리하다.   
+8. Screen 단에서 HiltViewModel을 사용하면 Preview를 사용할 수 없다.   
+9. 하위 Composable에서 확장 크기를 설정하는 것   
+```kotlin
+// BAD
+@Composable
+fun MyButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Button(
+        onClick = onClick,
+        modifier = modifier 
+            .clip(RoundedCornerShape(100))
+            .fillMaxWidth()
+    ) {
+        Text(text = "Cool button")
+    }
+}
+
+// GOOD
+@Composable
+fun MyButton(
+        onClick: () -> Unit,
+        modifier: Modifier = Modifier
+) {
+    Button(
+            onClick = onClick,
+            modifier = modifier
+                    .clip(RoundedCornerShape(100))
+    ) {
+        Text(text = "Cool button")
+    }
+}
+
+MyButton(
+        onClick = { /*TODO*/ },
+        modifier = Modifier.fillMaxWidth() // <- better 
+)
+```   
+10. 무거운 연산 작업을 수행할 때 Remember를 사용하지 않는 것   
+```kotlin
+// GOOD 
+@Composable
+fun EncryptedImage(
+    encryptedBytes: ByteArray,
+    modifier: Modifier = Modifier 
+) {
+    val bitmap = remember(encryptedBytes) {
+        val decryptedBytes = CryptoManager.decrypt(encryptedBytes)
+        BitmapFactory.decodeByteArray(decryptedBytes, 0, decryptedBytes.size)
+    }
+    
+    Image(
+        bitmap = bitmap.asImageBitmap(),
+        contentDescription = null,
+        modifier = modifier 
+    )
+}
+```   
+11. 하드 코딩된 DP를 남발해서 사용하는 것
+12. 터치 대상 크기를 잊어버리는 것
+13. 프래그먼트에서 View Decomposition 전략을 확인하지 않는 것   
+ComposeView를 Fragment 내부에서 사용할 때, Composition이 적절하게 파괴되기 위한 view decomposition을 적절하게 설정해야 한다.   
+```kotlin
+// BAD
+class LoginFragment : Fragment() {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        return ComposeView(requireContext()).apply {
+            setContent {
+                // Composable screen
+            }
+        }
+    }
+}
+```
+위 예시 코드처럼 그냥 ComposeView를 사용하는 것은 Composition이 Fragment의 생명주기 내에 포함되는 것을 보장할 수 없다.   
+```kotlin
+// GOOD
+class LoginFragment : Fragment() {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        return ComposeView(requireContext()).apply {
+            setViewCompositionStrategy(
+                ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed
+            )
+            setContent {
+                // Composable screen
+            }
+        }
+    }
+}
+```   
+대신에 Fragment의 생명주기에 딱 맞도록 하는 view decomposition을 설정해라.   
+
+14. State 명명법을 혼합하여 사용하는 것   
+UI 개발에 있어서 State를 생성하고 이름을 짓는 2가지 방법이 있다.   
+1.화면에 어떤 종류의 영향을 주는지를 기반으로 이름을 짓는다. (isProgressBarVisible)   
+2.그 상태가 나타내는 논리적인 동작(행동)을 기반으로 이름을 짓는다. (isLoggingIn)   
+
+가급적 일관성을 유지하는 것이 좋다.   
+
+15. Column을 스크롤 가능하게 만드는 것을 까먹는 것
+16. Composable 함수 내에서 람다의 이름을 지정하지 않는 것   
+-> 의미가 명확하지 않은 경우에는 람다에 이름을 지어줘야 한다.
+17. rememberCoroutineScope 를 잘못 사용하는 것   
+UI와 관련되지 않은 suspend function을 Composable 내에 coroutine scope에서 사용하면 안된다. 이 coroutine scope는 화면 회전과 같은 구성 변경 이후에 취소 될 것이다.
+18. 하위 Composable과 graphicsLayer의 State를 빈번하게 변경하는 것   
+스크롤을 하는 경우 주의해야 한다. 또한 람다의 결과로 상태가 전달되면 Composition 단계를 스킵하고 layout 단계로 진입할 수 있다.
+19. Scaffold의 content padding을 사용하지 않는 것
+20. Composable 함수 내에서 return을 수행하는 것   
+Composition 단계가 스킵된 경우 정의되지 않은 동작을 발생시킬 수 있다.
