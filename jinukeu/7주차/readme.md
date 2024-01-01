@@ -297,3 +297,115 @@ UI와 관련되지 않은 suspend function을 Composable 내에 coroutine scope�
 19. Scaffold의 content padding을 사용하지 않는 것
 20. Composable 함수 내에서 return을 수행하는 것   
 Composition 단계가 스킵된 경우 정의되지 않은 동작을 발생시킬 수 있다.
+
+# Compose Stability 설명
+## Skippable / Restartable / immutable / stable
+Skippable - recomposition 중에 호출될 때, 모든 파라미터가 이전의 값과 같다면 compose는 그 함수를 skip 할 수 있다.   
+Restartable - recomposition이 시작될 수 있는 scope 역할을 한다.   
+Immutable - 객체가 생성된 후에 어떤 property도 변경될 수 없는 타입을 말한다. 모든 primitive 타입은 immutable로 여겨진다.   
+Stable - mutable한 타입으로 여겨지지만, public property 또는 method 동작이 이전 실행과 다른 결과를 생성하는 경우 Compose runtime에 알림이 전송된다.   
+
+Compose runtime에 모든 변경 사항이 통지되는 한 이들은 mutable일 수 있다. Compose는 MutableState, SnapshotStateMap/List/etc와 같이 변경 가능한 클래스를 제공한다.   
+
+변경 가능한 속성에 이러한 유형을 사용하면 클래스에서 `@Stable`의 계약을 유지할 수 있다.   
+```kotlin
+@Stable
+class MyStateHolder {
+    var isLoading by mutableStateOf(false)
+}
+```   
+
+Compose state가 변경되면, Compose는 해당 상태의 객체를 read 하는 tree의 모든 point 위에서 가장 가까운 restartable function을 찾는다. 여기에서 recomposition이 다시 시작된다. 코드를 다시 실행할 때 파라미터가 변경되지 않은 경우 건너뛴다.   
+
+```kotlin
+fun ContactRow(contact: Contact, modifier: Modifier = Modifier) {
+    var selected by remember { mutableStateOf(false) }
+    Row(modifier) {
+        ContactDetails(contact)
+        ToggleButton(selected, onToggled = { selected = !selected }
+    }
+}
+```   
+`selected`가 변경될 때, state가 실제로 판독되는 가장 가까운 restartable function/composition scope는 ContactRow이다. (Row는 inline function이기 때문에 restartable scope가 될 수 없다.)   
+
+## Compose Compiler Reports
+아래 script를 root build.gradle에 붙여넣기 하면 Compiler report를 사용할 수 있다.   
+```kotlin
+subprojects {
+ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+  kotlinOptions {
+    if (project.findProperty("composeCompilerReports") == "true") {
+      freeCompilerArgs += [
+        "-P",
+        "plugin:androidx.compose.compiler.plugins.kotlin:reportsDestination=" +
+        project.buildDir.absolutePath + "/compose_compiler"
+        ]
+      }
+      if (project.findProperty("composeCompilerMetrics") == "true") {
+        freeCompilerArgs += [
+          "-P",
+          "plugin:androidx.compose.compiler.plugins.kotlin:metricsDestination=" +
+          project.buildDir.absolutePath + "/compose_compiler"
+        ]
+      }
+    }
+  }
+}
+```   
+
+아래 작업을 수행하면 이제 restartable, skippable, stable 여부를 확인할 수 있다.
+```kotlin
+./gradlew assembleRelease -PcomposeCompilerReports=true
+```
+
+```kotlin
+restartable skippable scheme("[androidx.compose.ui.UiComposable]") fun SnackCollection(  
+    stable snackCollection: SnackCollection
+    stable onSnackClick: Function1<Long, Unit>
+    stable modifier: Modifier? = @static Companion
+    stable index: Int = @static 0
+    stable highlight: Boolean = @static true
+)
+```   
+
+컬렉션 타입의 파라미터의 경우, 항상 unstable로 결정된다. (`@Immutable`을 사용했음에도 불구하고 ...)   
+```kotlin
+@Immutable
+data class Snack(
+  val id: Long,
+  val name: String,
+  val imageUrl: String,
+  val price: Long,
+  val tagline: String = "",
+  val tags: Set<String> = emptySet()
+)
+```   
+
+List대신 kotlinx immutable collection을 사용할 수 있다.   
+```kotlin
+@Composable  
+private fun HighlightedSnacks(
+    index: Int,
+-   snacks: List<Snack>,
++   snacks: ImmutableList<Snack>,
+    onSnackClick: (Long) -> Unit,
+    modifier: Modifier = Modifier
+  )
+```   
+
+Immutable collection을 사용할 수 없다면, annotation된 stable 클래스로 collection을 wrap하여 사용할 수 있다.   
+```kotlin
+@Immutable
+data class SnackCollection(
+    val snacks: List<Snack>
+)
+```   
+
+# Immutable Collection vs Persistent Collection
+```kotlin
+val immutableList: ImmutableList<String> = listOf<String>().toImmutableList() + listOf<String>().toImmutableList() // 불가능
+val persistentList = persistentListOf<String>() + "1"
+```   
+
+immutableList는 +, - 와 같은 연산자가 동작하지 않는 반면 persistentList는 +, - 연산자를 사용할 수 있다.    
+추측으로는 immutable이라는 키워드가 "절대" 변하면 안되므로 +, -와 같은 연산자를 사용하지 못하게 막은 것 같다.
