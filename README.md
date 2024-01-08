@@ -8,7 +8,7 @@
 
 ## 1주차
 
-- Text, Button, Modifier(https://developer.android.com/jetpack/compose/modifiers?hl=ko)
+- Text, Button, [Modifier](https://developer.android.com/jetpack/compose/modifiers?hl=ko)
 - Surface, Box, Row, Column
 - BoxWithConstraints
 
@@ -26,8 +26,8 @@
 
 ## 4주차
 
-- Compose 이해 (https://developer.android.com/jetpack/compose/mental-model?hl=ko)
-- 상태 관리 (https://developer.android.com/jetpack/compose/state?hl=ko)
+- [Compose 이해](https://developer.android.com/jetpack/compose/mental-model?hl=ko)
+- [상태 관리](https://developer.android.com/jetpack/compose/state?hl=ko)
 - 과제 - 아래 사진 컴포즈로 구현해보기   
 ![homework1.png](img/homework1.png)
 
@@ -35,23 +35,23 @@
 
 ## 5주차
 
-- 수명 주기 (https://developer.android.com/jetpack/compose/lifecycle?hl=ko)
-- 부수 효과 (https://developer.android.com/jetpack/compose/side-effects?hl=ko)
+- [수명 주기](https://developer.android.com/jetpack/compose/lifecycle?hl=ko)
+- [부수 효과](https://developer.android.com/jetpack/compose/side-effects?hl=ko)
 - 과제 - 아래 사진 horizontalpager를 활용하여 구현해보기   
 ![homework1.png](img/homework2.png)
 
 
 ## 6주차
 
-- 단계 (https://developer.android.com/jetpack/compose/phases?hl=ko)
-- 성능 (https://developer.android.com/jetpack/compose/performance?hl=ko)
+- [단계](https://developer.android.com/jetpack/compose/phases?hl=ko)
+- [성능](https://developer.android.com/jetpack/compose/performance?hl=ko)
 - 과제 - LazyColumn 활용   
 ![homework3.png](img/homework3.png)
 
 
 ## 7주차
 
-- CompositionLocal (https://developer.android.com/jetpack/compose/compositionlocal?hl=ko)
+- [CompositionLocal](https://developer.android.com/jetpack/compose/compositionlocal?hl=ko)
 - [컴포즈 안티 패턴 1-5](https://velog.io/@mraz3068/Jetpack-Compose-Top-20-mistakes-1-5)
 - [컴포즈 안티 패턴 6-10](https://velog.io/@mraz3068/Jetpack-Compose-Top-20-mistakes-6-10)
 - [컴포즈 안티 패턴 11-15](https://velog.io/@mraz3068/Jetpack-Compose-Top-20-mistakes-11-15)
